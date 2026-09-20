@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة تحويلات مالية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#eef9ff",
+                100: "#d8f1ff",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+              },
+              success: "#10b981",
+              warning: "#f59e0b",
+              danger: "#ef4444",
+            },
+            boxShadow: {
+              soft: "0 18px 40px rgba(15, 23, 42, 0.08)",
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js"></script>
+  </head>
+  <body class="bg-slate-100 text-slate-800 antialiased">
+    <div class="min-h-screen">
+      <header class="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div
+          class="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8"
+        >
+          <div>
+            <p class="text-sm font-medium text-brand-600">
+              نظام إدارة التحويلات
+            </p>
+            <h1 class="mt-1 text-2xl font-extrabold text-slate-900">
+              لوحة التحكم المالية
+            </h1>
+          </div>
+          <div
+            class="rounded-full bg-brand-50 px-4 py-2 text-sm font-medium text-brand-700"
+          >
+            تحديثات مباشرة في الوقت الفعلي
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+        <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <div class="rounded-3xl bg-white p-6 shadow-soft sm:p-8">
+            <div class="mb-6 flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm font-medium text-brand-600">إضافة جديدة</p>
+                <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                  نموذج إدخال تحويل مالي
+                </h2>
+              </div>
+            </div>
+
+            <form id="transferForm" class="space-y-5">
+              <div class="grid gap-5 md:grid-cols-2">
+                <label class="space-y-2 text-sm font-medium text-slate-700">
+                  <span>اسم الزبون</span>
+                  <input
+                    id="customerName"
+                    type="text"
+                    placeholder="أدخل اسم الزبون"
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                    required
+                  />
+                </label>
+
+                <label class="space-y-2 text-sm font-medium text-slate-700">
+                  <span>رقم الجوال</span>
+                  <input
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder="0599 123 456"
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                    required
+                  />
+                </label>
+
+                <label class="space-y-2 text-sm font-medium text-slate-700">
+                  <span>مبلغ التحويل (شيكل)</span>
+                  <input
+                    id="amount"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="1000"
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                    required
+                  />
+                </label>
+
+                <label class="space-y-2 text-sm font-medium text-slate-700">
+                  <span>تطبيق التحويل</span>
+                  <select
+                    id="paymentMethod"
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+                    required
+                  >
+                    <option value="">اختر التطبيق</option>
+                    <option value="بنك فلسطين">بنك فلسطين</option>
+                    <option value="بال باي">بال باي</option>
+                    <option value="جوال باي">جوال باي</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
+                <button
+                  type="submit"
+                  class="inline-flex items-center justify-center rounded-2xl bg-brand-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+                >
+                  حفظ التحويل
+                </button>
+                <button
+                  type="button"
+                  id="resetForm"
+                  class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-3 text-base font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                >
+                  إعادة تعيين
+                </button>
+                <button
+                  type="button"
+                  id="clearDataBtn"
+                  class="inline-flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-6 py-3 text-base font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                >
+                  مسح البيانات
+                </button>
+              </div>
+            </form>
+
+            <p id="formStatus" class="mt-4 text-sm text-slate-500"></p>
+          </div>
+
+          <div
+            class="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-700 to-brand-500 p-6 text-white shadow-soft sm:p-8"
+          >
+            <div class="mb-6 flex items-center justify-between">
+              <span
+                class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-brand-50"
+                >حالة النظام</span
+              >
+              <span
+                id="dbStatusDot"
+                class="inline-flex h-3 w-3 rounded-full bg-emerald-400"
+              ></span>
+            </div>
+
+            <div class="space-y-5">
+              <div>
+                <p class="text-sm text-brand-100">آخر دفعة</p>
+                <h3 id="latestTransaction" class="mt-2 text-2xl font-bold">
+                  --
+                </h3>
+              </div>
+
+              <div class="rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                <p class="text-sm text-brand-100">معلومات النظام</p>
+                <ul class="mt-3 space-y-2 text-sm text-white/90">
+                  <li>• ربط مباشر مع Firestore</li>
+                  <li>• تحديث فوري عبر جميع الأجهزة</li>
+                  <li>• دعم كامل للغة العربية وواجهة RTL</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-3xl bg-white p-5 shadow-soft">
+            <p class="text-sm font-medium text-slate-500">
+              إجمالي المبالغ المحولة
+            </p>
+            <h3
+              id="totalAmount"
+              class="mt-3 text-3xl font-extrabold text-slate-900"
+            >
+              0
+            </h3>
+          </div>
+
+          <div class="rounded-3xl bg-white p-5 shadow-soft">
+            <p class="text-sm font-medium text-slate-500">
+              إجمالي عدد العمليات
+            </p>
+            <h3
+              id="totalTransactions"
+              class="mt-3 text-3xl font-extrabold text-slate-900"
+            >
+              0
+            </h3>
+          </div>
+
+          <div class="rounded-3xl bg-white p-5 shadow-soft">
+            <p class="text-sm font-medium text-slate-500">إجمالي عدد الزبائن</p>
+            <h3
+              id="totalCustomers"
+              class="mt-3 text-3xl font-extrabold text-slate-900"
+            >
+              0
+            </h3>
+          </div>
+
+          <div class="rounded-3xl bg-white p-5 shadow-soft">
+            <p class="text-sm font-medium text-slate-500">متوسط المبلغ</p>
+            <h3
+              id="averageAmount"
+              class="mt-3 text-3xl font-extrabold text-slate-900"
+            >
+              0
+            </h3>
+          </div>
+        </section>
+
+        <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <div class="rounded-3xl bg-white p-6 shadow-soft">
+            <div class="mb-5 flex items-center justify-between gap-3">
+              <h3 class="text-xl font-bold text-slate-900">
+                توزيع المبالغ حسب التطبيق
+              </h3>
+            </div>
+            <div id="methodBreakdown" class="space-y-5"></div>
+          </div>
+
+          <div class="rounded-3xl bg-white p-6 shadow-soft">
+            <h3 class="text-xl font-bold text-slate-900">ملخص سريع</h3>
+            <div id="quickSummary" class="mt-5 space-y-4"></div>
+          </div>
+        </section>
+
+        <section class="rounded-3xl bg-white p-6 shadow-soft">
+          <div
+            class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"
+          >
+            <div>
+              <p class="text-sm font-medium text-brand-600">جدول البيانات</p>
+              <h3 class="mt-1 text-2xl font-bold text-slate-900">
+                سجل التحويلات
+              </h3>
+            </div>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="بحث بالاسم أو رقم الجوال"
+                class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-right outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100 sm:w-64"
+              />
+
+              <select
+                id="methodFilter"
+                class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-right outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-100"
+              >
+                <option value="الكل">الكل</option>
+                <option value="بنك فلسطين">بنك فلسطين</option>
+                <option value="بال باي">بال باي</option>
+                <option value="جوال باي">جوال باي</option>
+              </select>
+
+              <button
+                id="clearAllBtn"
+                type="button"
+                class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+              >
+                مسح الكل
+              </button>
+
+              <button
+                id="exportCsvBtn"
+                type="button"
+                class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                تصدير CSV
+              </button>
+
+              <button
+                id="exportExcelBtn"
+                type="button"
+                class="rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
+              >
+                تصدير Excel
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full border-separate border-spacing-y-2">
+              <thead>
+                <tr class="text-right text-sm text-slate-500">
+                  <th class="px-4 py-3 font-medium">التاريخ والوقت</th>
+                  <th class="px-4 py-3 font-medium">اسم الزبون</th>
+                  <th class="px-4 py-3 font-medium">رقم الجوال</th>
+                  <th class="px-4 py-3 font-medium">وسيلة الدفع</th>
+                  <th class="px-4 py-3 font-medium">المبلغ</th>
+                  <th class="px-4 py-3 font-medium">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
